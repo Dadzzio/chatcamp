@@ -1,15 +1,26 @@
-<script setup>
+<script lang="ts">
 import { ref } from 'vue';
-import { chatcamp_backend } from 'declarations/chatcamp_backend/index';
-let greeting = ref('');
+import { chatcamp_backend } from '../../declarations/chatcamp_backend';
 
-async function handleSubmit(e) {
-  e.preventDefault();
-  const target = e.target;
-  const name = target.querySelector('#name').value;
-  await chatcamp_backend.greet(name).then((response) => {
-    greeting.value = response;
-  });
+export default {
+  data() {
+    return {
+      newNote: "",
+      notes: [] as string[]
+    }
+  },
+  methods: {
+    async dodajNotatke() {
+      await chatcamp_backend.add_note(this.newNote)
+      await this.pobierzNotatki()
+    },
+    async pobierzNotatki() {
+      this.notes = await chatcamp_backend.get_notes()
+    }
+  },
+  mounted(){
+    this.pobierzNotatki()
+  }
 }
 </script>
 
@@ -18,11 +29,11 @@ async function handleSubmit(e) {
     <img src="/logo2.svg" alt="DFINITY logo" />
     <br />
     <br />
-    <form action="#" @submit="handleSubmit">
-      <label for="name">Enter your name: &nbsp;</label>
-      <input id="name" alt="Name" type="text" />
-      <button type="submit">Click Me!</button>
-    </form>
-    <section id="greeting">{{ greeting }}</section>
+      <div>
+      {{ notes }}
+    </div>
+    <div>
+      <textarea v-model="newNote"></textarea><button @click="dodajNotatke">Dodaj notatke</button>
+    </div>
   </main>
 </template>
